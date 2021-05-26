@@ -9,7 +9,7 @@
  */
 
 #define _CRT_SECURE_NO_WARNINGS
-#define MAX_VERTEX_SIZE 	10
+#define MAX_VERTEX_SIZE 	10 // Vertex 최대 사이즈를 10으로 설정
 #define MAX_STACK_SIZE		20 // MAX_STACK_SIZE를 20으로 설정
 #define MAX_QUEUE_SIZE		20 // MAX_QUEUE_SIZE를 20으로 설정
 
@@ -18,15 +18,15 @@
 
 
 
-typedef struct node { // 트리의 노드 구조체
+typedef struct node { // 그래프의 노드 구조체
 	int vertex;
 	struct node* link;
 } Node;
 
 
-Node graph[MAX_VERTEX_SIZE];
-int visited[MAX_VERTEX_SIZE];
-int ismade = 0;
+Node graph[MAX_VERTEX_SIZE]; // 그래프의 첫 부분을 저장하는 배열 선언
+int visited[MAX_VERTEX_SIZE]; // 방문 기록을 저장하기 위한 배열 선언
+int ismade = 0; // 오류 발생 방지를 위한 그래프 생성여부 저장 변수
 
 
 /* for stack */
@@ -48,7 +48,7 @@ int enQueue(Node* aNode); // queue의 enQueue() 함수 선언
 
 
 
-int initializeGraph(Node* h); // BST 초기화 함수 선언
+int initializeGraph(Node* h); // 그래프 초기화 함수 선언
 
 /* functions that you have to implement */
 int DFS(Node* graph, int key);
@@ -74,7 +74,7 @@ int main()
 	char command; // 사용자가 선택한 메뉴값 저장하는 변수
 	int key; // 사용자가 탐색할 노드의 키값 저장하는 변수
 	int key2; // 두개의 키값을 입력해야할 때 쓰는 변수
-	Node* head = NULL; // BST의 head = NULL로 초기화
+	Node* head = NULL; // 그래프의 head = NULL로 초기화
 
 	do {
 		printf("\n\n");
@@ -92,10 +92,10 @@ int main()
 
 		switch (command) {
 		case 'z': case 'Z':
-			initializeGraph(graph); // BST 초기화 함수 호출
+			initializeGraph(graph); // 그래프 초기화 함수 호출
 			break;
 		case 'q': case 'Q':
-			freeGraph(graph); // BST 할당 해제 함수 호출
+			freeGraph(graph); // 그래프 할당 해제 함수 호출
 			break;
 		case 'i': case 'I':
 			printf("Your Vertex = "); // Vertex 삽입을 선택하였을 경우
@@ -107,19 +107,19 @@ int main()
 			printf("Vertex A: "); // edge 삽입을 선택하였을 경우
 			scanf("%d", &key); // Vertex A의 key값 입력받음
 			printf("Vertex B: ");
-			scanf("%d", &key2); // Vertex A의 key값 입력받음
+			scanf("%d", &key2); // Vertex B의 key값 입력받음
 			insertEdge(graph, key, key2);
 			break;
 
 		case 'd': case 'D':
 			printf("탐색을 시작할 정점 Vertex 값을 입력하세요.\n");
 			scanf("%d", &key);
-			DFS(graph, key); // 재귀를 통한 중위순회 함수 호출
+			DFS(graph, key); // DFS 호출 함수
 			break;
 		case 'b': case 'B':
 			printf("탐색을 시작할 정점 Vertex 값을 입력하세요.\n");
 			scanf("%d", &key);
-			BFS(graph, key);
+			BFS(graph, key); // BFS 호출 함수
 			break;
 
 		case 'p': case 'P':
@@ -139,46 +139,46 @@ int main()
 int initializeGraph(Node* h) {
 
 	/* if the tree is not empty, then remove all allocated nodes from the tree*/
-	if (ismade != 0) // NULL 트리가 아닌 경우
-		freeGraph(h); // BST에 대한 할당 해제 함수 호출
+	if (ismade != 0) // NULL 그래프가 아닌 경우
+		freeGraph(h); // 그래프에 대한 할당 해제 함수 호출
 
-	top = -1; // 반복을 통한 중위순회 함수에서 쓰일 stack의 top = -1로 초기화
+	top = -1; // 깊이 우선 탐색 함수에서 쓰일 stack의 top = -1로 초기화
 
-	front = rear = -1; //  레벨순회 함수에서 쓰일 queue의 front, rear = -1로 초기화
+	front = rear = -1; //  너비 우선 탐색 함수에서 쓰일 queue의 front, rear = -1로 초기화
 	ismade = 0;
 	return 1;
 }
 
 int freeGraph(Node* head) // Graph 모든 vertex 관계 삭제 함수
 {
-	ismade = 0;
+	ismade = 0; // 그래프 생성 여부 변수 초기화
 
 	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
 	{
-		Node* temppointer = head + i;
-		while (temppointer->link != NULL)
+		Node* temppointer = head + i; // 각 Vertex의 리스트 첫 부분을 지정하여
+		while (temppointer->link != NULL) // 모든 부분을 처리할 때까지
 		{
-			Node* tofree = temppointer;
-			tofree->vertex = -1;
-			temppointer = temppointer->link;
-			free(tofree);
+			Node* tofree = temppointer; // 임시 포인터 변수
+			tofree->vertex = -1; // vertex값 초기화
+			temppointer = temppointer->link; // 다음 리스트 노드 처리를 위한 대상 변경
+			free(tofree); // 기존 리스트 노드 할당 해제
 		}
 	}
 	return 1;
 }
 
 
-int insert(Node* graph, int key) // BST 삽입 함수, 매개변수로 head 포인터와 삽입할 노드의 key값 받음
+int insert(Node* graph, int key) // 그래프 삽입 함수, 매개변수로 head 포인터와 삽입할 노드의 key값 받음
 {
-	if (graph[key].vertex == key)
+	if (graph[key].vertex == key) //  Vertex를 중복하여 삽입하려는 경우
 	{
-		printf("이미 삽입된 Vertex입니다.\n");
+		printf("이미 삽입된 Vertex입니다.\n"); // 오류 메시지 출력
 		return 2;
 	}
 	else
 	{
-		graph[key].vertex = key;
-		graph[key].link = NULL;
+		graph[key].vertex = key; // vertex에 입력한 key값 대입
+		graph[key].link = NULL; // 새로 추가하면서 edge가 없으므로 link를 NULL로 설정
 		ismade++;
 		return 1;
 	}
@@ -187,7 +187,7 @@ int insert(Node* graph, int key) // BST 삽입 함수, 매개변수로 head 포�
 int insertEdge(Node* graph, int key, int key2)
 {
 
-	if (ismade <= 1)
+	if (ismade <= 1) // 발생할 수 있는 오류 방지를 위한 조건 생성
 	{
 		printf("2개 이상의 Vertex를 먼저 입력하세요.\n");
 		return 2;
@@ -213,33 +213,32 @@ int insertEdge(Node* graph, int key, int key2)
 		return 2;
 	}
 
-	insertList(graph + key, key2);
-	insertList(graph + key2, key);
+	insertList(graph + key, key2); // 조건을 모두 만족할 경우 리스트 삽입 함수 호출
+	insertList(graph + key2, key); // 상대 vertex에서도 리스트 삽입 함수 호출
 }
 
 int insertList(Node* graph, int key)
 {
 	int i = 0;
-	Node* temppointer = graph;
-	while (temppointer->link != NULL)
+	Node* temppointer = graph; // 노드 포인터를 graph로 지정
+	while (temppointer->link != NULL) // 모든 리스트 노드 값과 비교하여
 	{
-		if (key >= temppointer->vertex && key <= temppointer->link->vertex)
+		if (key >= temppointer->vertex && key <= temppointer->link->vertex) // 오름차순 배치를 위해 알맞은 위치를 찾아
 		{
-			printf("if문 진입, key=%d, temp->vertex=%d\n", key, temppointer->vertex);
-			Node* added = (Node*)malloc(sizeof(Node*));
-			added->vertex = key;
+			Node* added = (Node*)malloc(sizeof(Node*)); // 해당 위치에 삽입하기 위한
+			added->vertex = key; // vertex 및 edge 값 재설정
 			added->link = temppointer->link;
 			temppointer->link = added;
 			return 1;
 		}
-		else temppointer = temppointer->link;
+		else temppointer = temppointer->link; // 조건에 맞지 않을 경우 다음 리스트 노드와 비교
 	}
-	if (temppointer->link == NULL)
+	if (temppointer->link == NULL) // 모든 노드와 비교했을 때도 조건을 만족하지 않을 경우
 	{
-		Node* added = (Node*)malloc(sizeof(Node*));
+		Node* added = (Node*)malloc(sizeof(Node*)); // 가장 큰 Vertex값에 해당하므로
 		added->vertex = key;
 		added->link = NULL;
-		temppointer->link = added;
+		temppointer->link = added; // 알맞게 vertex값 대입 및 edge 관계 설정
 		return 1;
 	}
 
@@ -253,7 +252,7 @@ int DFS(Node* graph, int key)
 	Node* nodepointer = graph;
 	if (key < 0 || key > 9)
 	{
-		printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
+		printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n"); // 오류 방지를 위한 조건 설정
 		return 2;
 	}
 	if (graph[key].vertex == -1)
@@ -262,28 +261,26 @@ int DFS(Node* graph, int key)
 		return 2;
 	}
 	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
-		visited[i] = 0;
+		visited[i] = 0; // 방문 여부 저장하는 배열 초기화
 
-	push(key);
-//	printf("push된 키: %d, top = %d\n", key, top);
-	visited[key] = 1;
-	printf("[ %d ] ", key);
+	push(key); // 시작 정점 key값 대입 후
+	visited[key] = 1; // 방분 여부 저장 배열에도 1 대입
+	printf("[ %d ] ", key); // 해당 key값 출력
 
-	while(1)
+	while(1) // while문을 통한 iterative DFS
 	{
-		if (top == -1)
+		if (top == -1) // 탐색을 완료해 stack에 남은 원소가 없을 경우 반복문 종료
 			break;
 
-		key = pop();
-//		printf("pop된 키: %d\n", key);
+		key = pop(); // 다음 link에 해당하는 vertex 삽입했을 경우 pop()
 
-			for (nodepointer = graph + key; nodepointer;nodepointer=nodepointer->link)
+			for (nodepointer = graph + key; nodepointer;nodepointer=nodepointer->link) // 모든 노드에 대해 확인할 때까지
 			{
-					if (visited[nodepointer->vertex] == 0)
+					if (visited[nodepointer->vertex] == 0) // 방문하지 않은 vertex의 경우
 					{
-						printf("[ %d ] ", nodepointer->vertex);
-						visited[nodepointer->vertex] = 1;
-						push(nodepointer->vertex);
+						printf("[ %d ] ", nodepointer->vertex); // 해당 vertex값 출력
+						visited[nodepointer->vertex] = 1; // 방문 여부 확인
+						push(nodepointer->vertex); // 다음 vertex 확인 위해 push함
 					}
 				
 			}
@@ -301,33 +298,33 @@ int BFS(Node* graph, int key)
 	}
 	if (graph[key].vertex == -1)
 	{
-		printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n");
+		printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n"); // 오류 방지를 위한 조건 추가
 		return 2;
 	}
 
-	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++) // 방문 여부 저장 배열 초기화
 		visited[i] = 0;
 
-	Node* nodepointer;
-	front = -1;
+	Node* nodepointer; // vertex를 가리킬 포인터 선언 후
+	front = -1; // queue 초기화
 	rear = -1;
 
-	printf("[ %d ] ", key);
-	visited[key] = 1;
-	enQueue(key);
+	printf("[ %d ] ", key); // 시작 정점값 출력후
+	visited[key] = 1; // 해당 정점 방문 여부 확인
+	enQueue(key); // queue에 insert함
 
 	while (1)
 	{
-		if (front == rear)
+		if (front == rear) // 모든 탐색을 완료하여 queue에 남은 원소가 없을 경우 종료
 			break;
-		key = deQueue();
-		for (nodepointer = graph + key; nodepointer; nodepointer = nodepointer->link)
+		key = deQueue(); // 이전에 enqueue했던 값을 dequeue 하여 key에 대입
+		for (nodepointer = graph + key; nodepointer; nodepointer = nodepointer->link) // 너비 우선 탐색 실현을 위하여
 		{
-			if (visited[nodepointer->vertex] == 0)
+			if (visited[nodepointer->vertex] == 0) // 방문한 이력이 없는 vertex에 방문하였을 경우
 			{
-				printf("[ %d ] ", nodepointer->vertex);
-				visited[nodepointer->vertex] = 1;
-				enQueue(nodepointer->vertex);
+				printf("[ %d ] ", nodepointer->vertex); // 해당 vertex 값 출력하고
+				visited[nodepointer->vertex] = 1; // 방문 이력 확인
+				enQueue(nodepointer->vertex); // level order 구현하기 위해 enqueue
 			}
 		}
 	}
@@ -336,19 +333,19 @@ int BFS(Node* graph, int key)
 
 
 
-void printGraph() // stack의 요소를 출력하는 함수
+void printGraph() // graph의 요소를 출력하는 함수
 {
 	printf("입력된 Vertex 목록\n");
 	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
 	{
 		if (graph[i].vertex != -1)
-			printf("[ %d ] ", i);
+			printf("[ %d ] ", i); // insert된 vertex만 출력하는 for문이다.
 	}
 	printf("\n");
 
 	printf("입력된 Graph Adjacent List\n");
 	Node* point;
-	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++) // 각 vertex의 adjacent list를 출력하는 반복문이다.
 	{
 		point = graph + i;
 		if (point->vertex == -1)
@@ -357,7 +354,7 @@ void printGraph() // stack의 요소를 출력하는 함수
 
 		while (1)
 		{
-			if (point->link == NULL)
+			if (point->link == NULL) // point->link == NULL로 출력을 완료하였을 경우 반복문 벗어남
 			{
 				printf("[ %d ]\n", point->vertex);
 				break;
