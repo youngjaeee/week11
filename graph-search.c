@@ -44,7 +44,7 @@ int front = -1; // front = -1로 초기화
 int rear = -1; // rear = -1로 초기화
 
 int deQueue(); // queue의 deQueue() 함수 선언
-int enQueue(Node* aNode); // queue의 enQueue() 함수 선언
+int enQueue(int aNode); // queue의 enQueue() 함수 선언
 
 
 
