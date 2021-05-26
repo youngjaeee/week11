@@ -31,35 +31,31 @@ int ismade = 0;
 
 /* for stack */
 
-Node* stack[MAX_STACK_SIZE]; // MAX_STACK_SIZE 만큼 노드 구조체 포인터 배열을 할당
+int stack[MAX_STACK_SIZE]; // MAX_STACK_SIZE 만큼 노드 구조체 포인터 배열을 할당
 int top = -1; // top = -1로 초기화
 
-Node* pop(); // stack의 pop()함수 선언
-void push(Node* aNode); // stack의 push()함수 선언
+int pop(); // stack의 pop()함수 선언
+int push(int aNode); // stack의 push()함수 선언
 
 /* for queue */
 
-Node* queue[MAX_QUEUE_SIZE]; // MAX_QUEUE_SIZE만큼 노드 구조체 포인터 배열을 할당
+int queue[MAX_QUEUE_SIZE]; // MAX_QUEUE_SIZE만큼 노드 구조체 포인터 배열을 할당
 int front = -1; // front = -1로 초기화
 int rear = -1; // rear = -1로 초기화
 
-Node* deQueue(); // queue의 deQueue() 함수 선언
-void enQueue(Node* aNode); // queue의 enQueue() 함수 선언
+int deQueue(); // queue의 deQueue() 함수 선언
+int enQueue(Node* aNode); // queue의 enQueue() 함수 선언
 
 
 
 int initializeGraph(Node* h); // BST 초기화 함수 선언
 
 /* functions that you have to implement */
-void recursiveInorder(Node* ptr);	  /* recursive inorder traversal */
 int DFS(Node* graph, int key);
 int BFS(Node* graph, int key);
-void iterativeInorder(Node* ptr);     /* iterative inorder traversal */
-void levelOrder(Node* ptr);	          /* level order traversal */
 int insert(Node* graph, int key);      /* insert a node to the tree */
 int insertEdge(Node* graph, int key, int key2);
 int insertList(Node* graph, int key);
-int deleteNode(Node* head, int key);  /* delete the node for the key */
 void freeNode(Node* ptr);
 int freeGraph(Node* head); /* free all memories allocated to the tree */
 
@@ -72,8 +68,8 @@ void printGraph(); // stack을 출력하는 함수 선언
 
 int main()
 {
-	for(int i = 0; i < MAX_VERTEX_SIZE; i++)
-	graph[i].vertex=-1;
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
+		graph[i].vertex = -1;
 
 	char command; // 사용자가 선택한 메뉴값 저장하는 변수
 	int key; // 사용자가 탐색할 노드의 키값 저장하는 변수
@@ -99,7 +95,7 @@ int main()
 			initializeGraph(graph); // BST 초기화 함수 호출
 			break;
 		case 'q': case 'Q':
-			freeBST(head); // BST 할당 해제 함수 호출
+			freeGraph(graph); // BST 할당 해제 함수 호출
 			break;
 		case 'i': case 'I':
 			printf("Your Vertex = "); // Vertex 삽입을 선택하였을 경우
@@ -122,12 +118,12 @@ int main()
 			break;
 		case 'b': case 'B':
 			printf("탐색을 시작할 정점 Vertex 값을 입력하세요.\n");
-			BFS(graph, key);
 			scanf("%d", &key);
+			BFS(graph, key);
 			break;
 
 		case 'p': case 'P':
-			printStack(); // stack 출력 함수 호출
+			printGraph(); // stack 출력 함수 호출
 			break;
 
 		default:
@@ -149,22 +145,22 @@ int initializeGraph(Node* h) {
 	top = -1; // 반복을 통한 중위순회 함수에서 쓰일 stack의 top = -1로 초기화
 
 	front = rear = -1; //  레벨순회 함수에서 쓰일 queue의 front, rear = -1로 초기화
-
+	ismade = 0;
 	return 1;
 }
 
 int freeGraph(Node* head) // Graph 모든 vertex 관계 삭제 함수
 {
+	ismade = 0;
 
-
-	for(int i = 0; i < MAX_VERTEX_SIZE; i++)
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
 	{
 		Node* temppointer = head + i;
-		while(temppointer->link!=NULL)
+		while (temppointer->link != NULL)
 		{
 			Node* tofree = temppointer;
-			tofree->vertex=-1;
-			temppointer=temppointer->link;
+			tofree->vertex = -1;
+			temppointer = temppointer->link;
 			free(tofree);
 		}
 	}
@@ -174,7 +170,7 @@ int freeGraph(Node* head) // Graph 모든 vertex 관계 삭제 함수
 
 int insert(Node* graph, int key) // BST 삽입 함수, 매개변수로 head 포인터와 삽입할 노드의 key값 받음
 {
-	if(graph[key].vertex == key)
+	if (graph[key].vertex == key)
 	{
 		printf("이미 삽입된 Vertex입니다.\n");
 		return 2;
@@ -182,54 +178,63 @@ int insert(Node* graph, int key) // BST 삽입 함수, 매개변수로 head 포�
 	else
 	{
 		graph[key].vertex = key;
+		graph[key].link = NULL;
+		ismade++;
 		return 1;
 	}
 }
 
 int insertEdge(Node* graph, int key, int key2)
 {
-	if(key < 0 || key > 9 || key2 < 0 || key2 > 9)
-		{
-			printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
-			return 2;
-		}
-	if(graph[key].vertex == -1)
-		{
-			printf("Vertex A가 사전에 insert 되지 않았습니다.\n");
-			return 2;
-		}
-	if(graph[key2].vertex == -1)
-		{
-			printf("Vertex B가 사전에 insert 되지 않았습니다.\n");
-			return 2;
-		}
-	if (key == key2)
-		{
-			printf("자기 간선을 입력하였습니다.\n");
-			return 2;
-		}
 
-	insertList(graph+key, key2);
-	insertList(graph+key2, key);
+	if (ismade <= 1)
+	{
+		printf("2개 이상의 Vertex를 먼저 입력하세요.\n");
+		return 2;
+	}
+	if (key < 0 || key > 9 || key2 < 0 || key2 > 9)
+	{
+		printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
+		return 2;
+	}
+	if (graph[key].vertex == -1)
+	{
+		printf("Vertex A가 사전에 insert 되지 않았습니다.\n");
+		return 2;
+	}
+	if (graph[key2].vertex == -1)
+	{
+		printf("Vertex B가 사전에 insert 되지 않았습니다.\n");
+		return 2;
+	}
+	if (key == key2)
+	{
+		printf("자기 간선을 입력하였습니다.\n");
+		return 2;
+	}
+
+	insertList(graph + key, key2);
+	insertList(graph + key2, key);
 }
 
 int insertList(Node* graph, int key)
 {
 	int i = 0;
 	Node* temppointer = graph;
-	while(temppointer->link!=NULL)
+	while (temppointer->link != NULL)
 	{
-		if(key>temppointer->vertex)
-			{
-				Node* added = (Node*)malloc(sizeof(Node*));
-				added->vertex = key;
-				added->link = temppointer->link->link;
-				temppointer->link = added;
-				return 1;
-			}
+		if (key >= temppointer->vertex && key <= temppointer->link->vertex)
+		{
+			printf("if문 진입, key=%d, temp->vertex=%d\n", key, temppointer->vertex);
+			Node* added = (Node*)malloc(sizeof(Node*));
+			added->vertex = key;
+			added->link = temppointer->link;
+			temppointer->link = added;
+			return 1;
+		}
 		else temppointer = temppointer->link;
 	}
-	if(temppointer->link == NULL)
+	if (temppointer->link == NULL)
 	{
 		Node* added = (Node*)malloc(sizeof(Node*));
 		added->vertex = key;
@@ -241,58 +246,67 @@ int insertList(Node* graph, int key)
 }
 
 
+
 int DFS(Node* graph, int key)
 {
-	int tempvalue =-1;
-	int top = -1;
+	int tempvalue = -1;
 	Node* nodepointer = graph;
-	if(key < 0 || key > 9)
-		{
-			printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
-			return 2;
-		}
-	if(graph[key].vertex == -1)
-		{
-			printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n");
-			return 2;
-		}
-	for(int i = 0; i < MAX_VERTEX_SIZE; i++)
+	if (key < 0 || key > 9)
+	{
+		printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
+		return 2;
+	}
+	if (graph[key].vertex == -1)
+	{
+		printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n");
+		return 2;
+	}
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
 		visited[i] = 0;
 
-	push(graph+key);
+	push(key);
+//	printf("push된 키: %d, top = %d\n", key, top);
 	visited[key] = 1;
 	printf("[ %d ] ", key);
 
-	for(;;)
+	while(1)
 	{
-		nodepointer = nodepointer->link;
+		if (top == -1)
+			break;
 
-		while(nodepointer != NULL)
-		{
-			if(visited[nodepointer->vertex] != 1)
-				{
-					push(nodepointer);
-					visited[nodepointer->vertex] = 1;
-					printf("[ %d ] ", nodepointer->vertex);
-				}
+		key = pop();
+//		printf("pop된 키: %d\n", key);
+
+			for (nodepointer = graph + key; nodepointer;nodepointer=nodepointer->link)
+			{
+					if (visited[nodepointer->vertex] == 0)
+					{
+						printf("[ %d ] ", nodepointer->vertex);
+						visited[nodepointer->vertex] = 1;
+						push(nodepointer->vertex);
+					}
+				
+			}
+
 		}
-
-	}	
-}
+	}
 
 
 int BFS(Node* graph, int key)
 {
-	if(key < 0 || key > 9)
-		{
-			printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
-			return 2;
-		}
-	if(graph[key].vertex == -1)
-		{
-			printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n");
-			return 2;
-		}
+	if (key < 0 || key > 9)
+	{
+		printf("입력한 Vertex 값이 0~9 범위를 초과합니다.\n");
+		return 2;
+	}
+	if (graph[key].vertex == -1)
+	{
+		printf("해당 Vertex는 사전에 insert 되지 않았습니다.\n");
+		return 2;
+	}
+
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
+		visited[i] = 0;
 
 	Node* nodepointer;
 	front = -1;
@@ -300,14 +314,16 @@ int BFS(Node* graph, int key)
 
 	printf("[ %d ] ", key);
 	visited[key] = 1;
-	enQueue(graph+key);
+	enQueue(key);
 
-	while(front != rear)
+	while (1)
 	{
-		key = deQueue()->vertex;
-		for(nodepointer = graph+key; nodepointer; nodepointer = nodepointer->link)
+		if (front == rear)
+			break;
+		key = deQueue();
+		for (nodepointer = graph + key; nodepointer; nodepointer = nodepointer->link)
 		{
-			if(visited[nodepointer->vertex] == 0)
+			if (visited[nodepointer->vertex] == 0)
 			{
 				printf("[ %d ] ", nodepointer->vertex);
 				visited[nodepointer->vertex] = 1;
@@ -318,38 +334,37 @@ int BFS(Node* graph, int key)
 }
 
 
-/**
- * textbook: p 224s
- */
 
 
 void printGraph() // stack의 요소를 출력하는 함수
 {
 	printf("입력된 Vertex 목록\n");
-	for(int i = 0; i < MAX_VERTEX_SIZE; i++)
-		{
-			if(graph[i].vertex != -1)
-				printf("[ %d ] ", i);
-		}
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
+	{
+		if (graph[i].vertex != -1)
+			printf("[ %d ] ", i);
+	}
 	printf("\n");
 
 	printf("입력된 Graph Adjacent List\n");
 	Node* point;
-	for(int i = 0; i < MAX_VERTEX_SIZE; i++)
+	for (int i = 0; i < MAX_VERTEX_SIZE; i++)
 	{
-		point = graph+i;
-		if(point->vertex == -1)
+		point = graph + i;
+		if (point->vertex == -1)
 			continue;
 		printf("adjList[%d] : ", i);
-		while(1)
+
+		while (1)
 		{
-			if(point->link == NULL)
-				{
-					printf("[ %d ]\n");
-					break;
-				}
+			if (point->link == NULL)
+			{
+				printf("[ %d ]\n", point->vertex);
+				break;
+			}
 			else
 			{
+				printf("[ %d ] ", point->vertex);
 				point = point->link;
 			}
 		}
@@ -360,7 +375,7 @@ void printGraph() // stack의 요소를 출력하는 함수
 
 
 
-Node* pop() // stack에서의 pop()함수 구현
+int pop() // stack에서의 pop()함수 구현
 {
 	if (top < 0)
 		return NULL;
@@ -370,7 +385,7 @@ Node* pop() // stack에서의 pop()함수 구현
 	}
 }
 
-void push(Node* aNode) // stack에서의 push()함수 구현
+int push(int aNode) // stack에서의 push()함수 구현
 {
 	if (top >= MAX_STACK_SIZE - 1)
 	{
@@ -385,14 +400,14 @@ void push(Node* aNode) // stack에서의 push()함수 구현
 
 
 
-Node* deQueue() // Queue의 delete 기능 함수
+int deQueue() // Queue의 delete 기능 함수
 {
 	if (front == rear)
 		return NULL;
 	return queue[++front];
 }
 
-void enQueue(Node* aNode) // Queue의 insert 기능 함수
+int enQueue(int aNode) // Queue의 insert 기능 함수
 {
 	if (rear == MAX_QUEUE_SIZE - 1)
 	{
